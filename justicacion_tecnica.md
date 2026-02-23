@@ -72,6 +72,10 @@ docker tag users-service users-service:${SHORT_SHA}
 
 Esto sirve para saber exactamente qué código hay dentro de cada imagen. Si después de un deploy aparece un bug, puedo identificar de qué commit viene la imagen que está corriendo y hacer rollback a la versión anterior. Sin versionado todas las imágenes se llaman `latest` y no hay manera de distinguirlas.
 
+Durante el desarrollo del pipeline este step falló porque el servicio `frontend` en `docker-compose.yml` no tenía el campo `image:` definido, por lo que `docker tag` no encontraba la imagen. El error se ve acá:
+
+![Error docker tag: No such image frontend:latest](capturas/captura_error_tag_docker.png)
+
 ### SCA + seguridad de contenedor con Trivy
 
 Trivy escanea las imágenes ya construidas buscando CVEs conocidos. Lo importante acá es que no solo mira las dependencias de Node — también escanea el sistema operativo base de la imagen. Si la imagen usa una versión de Alpine o Debian con alguna vulnerabilidad conocida, Trivy lo reporta.
@@ -112,3 +116,19 @@ El login en particular no se asume seguro por el hecho de funcionar. Cada vez qu
 
 Pipeline completo en: `.github/workflows/devsecops.yml`  
 Ejecuciones en: https://github.com/W-Varg/Practica2/actions
+
+---
+
+## Evidencia de ejecución
+
+### Run con errores
+
+Ejemplo de un run fallido durante el desarrollo — el pipeline se cortó correctamente antes de llegar al build, cumpliendo el objetivo de "fail fast":
+
+![Pipeline con errores en GitHub Actions](capturas/error_workflows.png)
+
+### Run exitoso
+
+Una vez corregidos todos los issues (CVEs, ESLint, imagen Docker sin tag), el pipeline pasa verde de punta a punta:
+
+![Pipeline exitoso en GitHub Actions](capturas/success_worflows.png)
