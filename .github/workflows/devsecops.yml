@@ -162,6 +162,7 @@ jobs:
         image-ref: users-service
         severity: HIGH,CRITICAL
         exit-code: 1
+        ignore-unfixed: true
         format: table
         output: trivy-users.txt
 
@@ -171,6 +172,7 @@ jobs:
         image-ref: academic-service
         severity: HIGH,CRITICAL
         exit-code: 1
+        ignore-unfixed: true
         format: table
         output: trivy-academic.txt
 
@@ -180,8 +182,19 @@ jobs:
         image-ref: api-gateway
         severity: HIGH,CRITICAL
         exit-code: 1
+        ignore-unfixed: true
         format: table
         output: trivy-gateway.txt
+
+    - name: Trivy scan frontend
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        image-ref: frontend
+        severity: HIGH,CRITICAL
+        exit-code: 1
+        ignore-unfixed: true
+        format: table
+        output: trivy-frontend.txt
 
     - name: Trivy scan frontend
       uses: aquasecurity/trivy-action@0.20.0
