@@ -46,7 +46,8 @@ services:
   # FRONTEND (React SPA)
   # =========================
   frontend:
-    build: ../frontend    
+    image: frontend:latest
+    build: ../frontend
     container_name: frontend
     ports:
       - "5173:80"
