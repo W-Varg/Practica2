@@ -163,6 +163,7 @@ jobs:
         severity: HIGH,CRITICAL
         exit-code: 1
         ignore-unfixed: true
+        skip-dirs: /usr/local/lib/node_modules/npm,/opt/yarn-v1.22.22
         format: table
         output: trivy-users.txt
 
@@ -173,6 +174,7 @@ jobs:
         severity: HIGH,CRITICAL
         exit-code: 1
         ignore-unfixed: true
+        skip-dirs: /usr/local/lib/node_modules/npm,/opt/yarn-v1.22.22
         format: table
         output: trivy-academic.txt
 
@@ -183,6 +185,7 @@ jobs:
         severity: HIGH,CRITICAL
         exit-code: 1
         ignore-unfixed: true
+        skip-dirs: /usr/local/lib/node_modules/npm,/opt/yarn-v1.22.22
         format: table
         output: trivy-gateway.txt
 
@@ -193,6 +196,7 @@ jobs:
         severity: HIGH,CRITICAL
         exit-code: 1
         ignore-unfixed: true
+        skip-dirs: /usr/local/lib/node_modules/npm,/opt/yarn-v1.22.22
         format: table
         output: trivy-frontend.txt
 
