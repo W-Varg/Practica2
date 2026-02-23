@@ -189,18 +189,28 @@ Trivy escanea las imágenes Docker construidas en busca de CVEs conocidos en:
 
 **Gate:** `exit-code: 1` hace que el pipeline falle ante vulnerabilidades `HIGH` o `CRITICAL`.
 
-#### f) Build de contenedores (Docker)
+#### f) Build de contenedores + versionado del artefacto
 
 ```yaml
-- name: Set up Docker Buildx
-  uses: docker/setup-buildx-action@v3
-
 - name: Build Docker images
   run: |
     docker compose -f backend/docker-compose.yml build
+
+- name: Tag Docker images with commit SHA (versionado)
+  run: |
+    SHA=${{ github.sha }}
+    SHORT_SHA=${SHA::8}
+    docker tag users-service    users-service:${SHORT_SHA}
+    docker tag academic-service academic-service:${SHORT_SHA}
+    docker tag api-gateway      api-gateway:${SHORT_SHA}
+    docker tag frontend         frontend:${SHORT_SHA}
+    echo "Images tagged with version: ${SHORT_SHA}"
 ```
 
-Construye las cuatro imágenes Docker (`users-service`, `academic-service`, `api-gateway`, `frontend`) usando los `Dockerfile` de cada servicio.
+Cada imagen queda versionada con el SHA corto del commit (ej: `users-service:a1b2c3d4`). Esto permite:
+- Rastrear qué commit generó cada imagen.
+- Rollback a una versión específica si se detecta un problema.
+- Cumplir el principio de artefacto inmutable: cada build produce una versión única.
 
 #### g) Seguridad de contenedores (Trivy)
 

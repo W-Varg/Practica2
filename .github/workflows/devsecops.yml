@@ -133,7 +133,7 @@ jobs:
         ls -la frontend
 
     # =========================
-    # 6. Docker Build
+    # 6. Docker Build + Versionado
     # =========================
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
@@ -141,6 +141,17 @@ jobs:
     - name: Build Docker images
       run: |
         docker compose -f backend/docker-compose.yml build
+
+    - name: Tag Docker images with commit SHA (versionado)
+      run: |
+        SHA=${{ github.sha }}
+        SHORT_SHA=${SHA::8}
+        docker tag users-service    users-service:${SHORT_SHA}
+        docker tag academic-service academic-service:${SHORT_SHA}
+        docker tag api-gateway      api-gateway:${SHORT_SHA}
+        docker tag frontend         frontend:${SHORT_SHA}
+        echo "Images tagged with version: ${SHORT_SHA}"
+        docker images | grep -E "users-service|academic-service|api-gateway|frontend"
 
     # =========================
     # 7. SCA + Seguridad de contenedores – Trivy
