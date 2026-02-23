@@ -73,6 +73,15 @@ jobs:
         cd frontend
         npm ci
         npm test
+
+    # =========================
+    # 4.5 ESLint – Calidad de código
+    # =========================
+    - name: ESLint – frontend
+      run: |
+        cd frontend
+        npm run lint
+
     # =========================
     # 5. SAST – Semgrep
     # =========================
@@ -80,19 +89,42 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         pip install semgrep
-    - name: SAST user-service
+
+    - name: SAST users-service
       run: |
         cd backend/users-service
+        semgrep --config=auto --severity=ERROR --json --output=semgrep-users.json || true
         semgrep --config=auto --severity=ERROR
+
     - name: SAST academic-service
       run: |
         cd backend/academic-service
+        semgrep --config=auto --severity=ERROR --json --output=semgrep-academic.json || true
         semgrep --config=auto --severity=ERROR
+
     - name: SAST api-gateway
       run: |
         cd backend/api-gateway
+        semgrep --config=auto --severity=ERROR --json --output=semgrep-gateway.json || true
         semgrep --config=auto --severity=ERROR
-    
+
+    - name: SAST frontend
+      run: |
+        cd frontend
+        semgrep --config=auto --severity=ERROR --json --output=semgrep-frontend.json || true
+        semgrep --config=auto --severity=ERROR
+
+    - name: Upload Semgrep reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: semgrep-reports
+        path: |
+          backend/users-service/semgrep-users.json
+          backend/academic-service/semgrep-academic.json
+          backend/api-gateway/semgrep-gateway.json
+          frontend/semgrep-frontend.json
+
     - name: Validate env files
       run: |
         ls -la backend/users-service
@@ -111,28 +143,54 @@ jobs:
         docker compose -f backend/docker-compose.yml build
 
     # =========================
-    # 7. SCA – Trivy
+    # 7. SCA + Seguridad de contenedores – Trivy
     # =========================
     - name: Trivy scan users-service
       uses: aquasecurity/trivy-action@0.20.0
       with:
         image-ref: users-service
-        severity: HIGH
+        severity: HIGH,CRITICAL
         exit-code: 1
+        format: table
+        output: trivy-users.txt
 
     - name: Trivy scan academic-service
       uses: aquasecurity/trivy-action@0.20.0
       with:
         image-ref: academic-service
-        severity: CRITICAL
+        severity: HIGH,CRITICAL
         exit-code: 1
+        format: table
+        output: trivy-academic.txt
 
     - name: Trivy scan api-gateway
       uses: aquasecurity/trivy-action@0.20.0
       with:
         image-ref: api-gateway
-        severity: CRITICAL
+        severity: HIGH,CRITICAL
         exit-code: 1
+        format: table
+        output: trivy-gateway.txt
+
+    - name: Trivy scan frontend
+      uses: aquasecurity/trivy-action@0.20.0
+      with:
+        image-ref: frontend
+        severity: HIGH,CRITICAL
+        exit-code: 1
+        format: table
+        output: trivy-frontend.txt
+
+    - name: Upload Trivy reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: trivy-reports
+        path: |
+          trivy-users.txt
+          trivy-academic.txt
+          trivy-gateway.txt
+          trivy-frontend.txt
 
     # =========================
     # 8. Smoke test
